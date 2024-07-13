@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'blocked',
+        'role',
+        'avatar',
     ];
 
     /**
@@ -31,6 +35,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'role',
+        'blocked'
     ];
 
     /**
@@ -42,4 +48,38 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function pets(): HasMany
+    {
+        return $this->hasMany(Pet::class);
+    }
+
+    public function houseImages(): HasMany
+    {
+        return $this->hasMany(HouseImage::class);
+    }
+
+    public function sittingRequests(): HasMany
+    {
+        return $this->hasMany(SittingRequest::class);
+    }
+
+    public function ownedPets(): HasMany
+    {
+        return $this->hasMany(Pet::class, 'user_id');
+    }
+
+    public function getAvatarUrl(){
+        return Storage::url($this->avatar);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'pet_owner_id');
+    }
+
+    public function reviewedBy(): HasMany
+    {
+        return $this->hasMany(Review::class, 'sitter_id');
+    }
 }
